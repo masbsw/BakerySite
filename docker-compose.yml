@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # Базы данных
+  bakery-db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: bakery
+      POSTGRES_PASSWORD: 23230906
+    volumes:
+      - bakery_db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  order-db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: orderBakery
+      POSTGRES_PASSWORD: 23230906
+    volumes:
+      - order_db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"      
+
+  cart-db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: cartBakery
+      POSTGRES_PASSWORD: 23230906
+    volumes:
+      - cart_db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432" 
+  # Микросервисы
+  bakery-service:
+    build: ./bakery
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://bakery-db:5432/bakery
+    depends_on:
+      - bakery-db
+
+  admin-service:
+    build: ./AdminBakery
+    ports:
+      - "8086:8086"
+    environment:
+      CATALOG_SERVICE_URL: http://bakery-service:8082/api
+      ORDER_SERVICE_URL: http://order-service:8084/api
+    depends_on:
+      - bakery-service
+
+  order-service:
+    build: ./OrderBakery
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://order-db:5432/orderBakery
+    depends_on:
+      - order-db
+
+  cart-service:
+    build: ./CartBakery
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://cart-db:5432/cartBakery
+    depends_on:
+      - cart-db
+
+  # Фронтенд
+  frontend:
+    build: ./bakery-project
+    ports:
+      - "5173:80"
+    depends_on:
+      - admin-service
+      - bakery-service
+      - order-service
+      - cart-service
+
+volumes:
+  bakery_db_data:
+  order_db_data:
+  cart_db_data:
