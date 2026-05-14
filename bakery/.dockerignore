@@ -1,0 +1,20 @@
+# Файлы сборки
+.gradle
+build
+out
+bin
+target
+
+# Файлы IDE
+.idea
+*.iml
+*.ipr
+*.iws
+.vscode
+
+# Системные файлы
+.DS_Store
+*.log
+*.swp
+*.bak
+
