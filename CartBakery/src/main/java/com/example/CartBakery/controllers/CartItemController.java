@@ -42,7 +42,7 @@ public class CartItemController {
         cartItemService.deleteItemCart(itemSessionId, productId);
     }
 
-    @PatchMapping("/decrease/{itemSessionId}/{productId}")
+    @PutMapping("/decrease/{itemSessionId}/{productId}")
     public void decreaseQuantity(@PathVariable String itemSessionId,
                                  @PathVariable Long productId) {
         cartItemService.decreaseQuantity(itemSessionId, productId);
