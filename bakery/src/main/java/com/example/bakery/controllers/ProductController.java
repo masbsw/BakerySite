@@ -1,11 +1,17 @@
 package com.example.bakery.controllers;
 
 import com.example.bakery.dto.ProductRequest;
+import com.example.bakery.dto.ProductImageUploadResponse;
+import com.example.bakery.dto.StockDecreaseRequest;
+import com.example.bakery.dto.StockDecreaseResponse;
 import com.example.bakery.models.Category;
 import com.example.bakery.models.Product;
+import com.example.bakery.service.ProductImageStorageService;
 import com.example.bakery.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +24,8 @@ public class    ProductController {
 
     @Autowired
     private ProductService productService;
+    @Autowired
+    private ProductImageStorageService productImageStorageService;
 
     @GetMapping
     public List<Product> getAllProducts(){
@@ -47,7 +55,9 @@ public class    ProductController {
         product.setProductDescription(request.getProductDescription());
         product.setProductCompound(request.getProductCompound());
         product.setProductPrice(request.getProductPrice());
+        product.setProductWeight(request.getProductWeight());
         product.setProductQuantity(request.getProductQuantity());
+        product.setProductImg(request.getProductImg());
 
         Category category = new Category();
         category.setCategoryId(request.getCategoryId());
@@ -84,6 +94,16 @@ public class    ProductController {
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
         return productService.getProductsByIds(idList);
+    }
+
+    @PostMapping("/decrease-stock")
+    public StockDecreaseResponse decreaseStock(@Valid @RequestBody StockDecreaseRequest request) {
+        return productService.decreaseStock(request.getItems());
+    }
+
+    @PostMapping("/upload-image")
+    public ProductImageUploadResponse uploadProductImage(@RequestParam("file") MultipartFile file) {
+        return productImageStorageService.storeProductImage(file);
     }
 
     @DeleteMapping("/{id}")

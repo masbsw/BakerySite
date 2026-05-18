@@ -1,29 +1,29 @@
 <template>
-    <div class="mt-[61px] px-4 md:px-6 lg:px-8 catalog-container max-w-screen-xl mx-auto">
+    <div class="catalog-container">
         <Breadcrumbs pageName="Каталог" />
-        <div class="w-full flex flex-col md:flex-row justify-between items-start md:items-center header-section mb-8">
-            <h2 class="text-3xl md:text-5xl font-semibold mb-4 md:mb-0">Каталог</h2>
+        <div class="header-section">
+            <h2 class="catalog-title">Каталог</h2>
             <input 
                 v-model="searchQuery" 
                 type="text" 
                 placeholder="Поиск" 
-                class="p-2 w-full md:w-[67%] search-input"
+                class="search-input"
             />
         </div>
-        <div class="flex flex-col lg:flex-row mt-8 catalog-content">
-            <div class="categories-section w-full lg:w-1/5 mb-6 lg:mb-0">
+        <div class="catalog-content">
+            <div class="categories-section">
                 <div 
                     v-for="category in [{categoryId: null, categoryName: 'Все'}, ...categories]" 
                     :key="category.categoryId" 
                     @click="selectCategory(category.categoryId)"
-                    class="category-item mb-4"
+                    class="category-item"
                 >
-                    <h4 class="text-xl lg:text-2xl font-normal hover:font-semibold cursor-pointer">
+                    <h4 class="category-name">
                         {{ category.categoryName }}
                     </h4>
                 </div>
             </div>
-            <div class="products-section w-full lg:w-4/5 lg:pl-8">
+            <div class="products-section">
                 <ProductCard :products="filteredProducts" />
             </div>
         </div>
@@ -53,7 +53,9 @@ export default {
             let filtered = this.products;
 
             if (this.selectedCategoryId !== null) {
-                filtered = filtered.filter(product => product.category.categoryId === this.selectedCategoryId);
+                filtered = filtered.filter(
+                    product => product.category?.categoryId === this.selectedCategoryId
+                );
             }
 
             if (this.searchQuery) {
@@ -87,99 +89,105 @@ export default {
 
 <style scoped>
 .catalog-container {
-    width: 100%;
-    max-width: 1440px;
-    margin: 61px auto 0;
-    padding: 0 20px;
+    width: min(100%, var(--site-content-width));
+    margin: 0 auto;
+    padding: 0 var(--site-page-gutter);
     box-sizing: border-box;
 }
 
-.products-section {
-    width: 100%;
-    padding-left: 20px;
+.header-section {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 40%);
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.catalog-title {
+    font-size: clamp(2.25rem, 4vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1.05;
 }
 
 .search-input {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 14px;
     border-radius: 17px;
     border: 1px solid #cccccc;
-    color: rgba(250, 233, 216, 0.71);
+    color: #1f1f1f;
+    background-color: rgba(255, 255, 255, 0.55);
+}
+
+.search-input::placeholder {
+    color: #c7c2bf;
+}
+
+.catalog-content {
+    display: grid;
+    grid-template-columns: minmax(170px, 220px) minmax(0, 1fr);
+    gap: clamp(24px, 3vw, 48px);
+    width: 100%;
 }
 
 .categories-section {
-    min-width: auto;
-}
-
-.header-section {
-    width: 100%;
-    max-width: 1200px;
-}
-
-
-.catalog-content {
     display: flex;
-    flex-direction: row;
-    width: 100%;
-
+    flex-direction: column;
+    gap: 16px;
 }
-
-
 
 .category-item {
-    margin-bottom: 20px;
+    cursor: pointer;
 }
 
+.category-name {
+    font-size: clamp(1.125rem, 2vw, 1.5rem);
+    font-weight: 400;
+    transition: font-weight 0.2s ease;
+}
 
+.category-item:hover .category-name {
+    font-weight: 600;
+}
 
-@media (max-width: 768px) {
+.products-section {
+    min-width: 0;
+}
+
+@media (max-width: 1024px) {
     .catalog-container {
-        margin-top: 30px;
+        padding-inline: clamp(16px, 3.5vw, 28px);
     }
-    
+
     .header-section {
-        flex-direction: column;
-        align-items: flex-start;
+        grid-template-columns: 1fr;
+        gap: 16px;
     }
-    
-    .search-input {
-        width: 100%;
-        margin-top: 15px;
-    }
-    
+
     .catalog-content {
-        flex-direction: column;
+        grid-template-columns: 1fr;
+        gap: 24px;
     }
-    
+
     .categories-section {
-        width: 100%;
+        flex-direction: row;
         display: flex;
         flex-wrap: wrap;
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-    
-    .category-item {
-        margin-top: 0 !important;
-        margin-right: 15px;
-    }
-    
-    .products-section {
-        width: 100%;
-        margin-left: 0;
+        gap: 12px 20px;
     }
 }
 
-@media (max-width: 425px) {
-    .catalog-container {
-        margin-left: 10px;
-        margin-top: 20px;
+@media (max-width: 640px) {
+    .header-section {
+        margin-bottom: 24px;
     }
-    
-    h2 {
-        font-size: 2rem;
+
+    .categories-section {
+        gap: 10px 16px;
     }
-    
-    .category-item h4 {
-        font-size: 1.2rem;
+
+    .category-name {
+        font-size: 1rem;
     }
 }
 </style>

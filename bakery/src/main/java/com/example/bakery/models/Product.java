@@ -18,12 +18,12 @@ public class Product  {
     private String productDescription;
     @Column(name = "product_compound")
     private String productCompound;
-    @Column(name = "product_price")
-    private float productPrice;
-    @Column(name = "product_weight")
-    private float productWeight;
-    @Column(name = "product_quantity")
-    private int productQuantity;
+    @Column(name = "product_price", nullable = false)
+    private Float productPrice;
+    @Column(name = "product_weight", nullable = false)
+    private Float productWeight;
+    @Column(name = "product_quantity", nullable = false)
+    private Integer productQuantity;
     @Column(name = "product_img")
     private String productImg;
 

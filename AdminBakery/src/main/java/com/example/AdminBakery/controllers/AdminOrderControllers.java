@@ -19,13 +19,15 @@ public class AdminOrderControllers {
     @GetMapping
     public ResponseEntity<String> getAllOrders() {
         String url = orderServiceUrl + "/orders";
-        return restTemplate.exchange(url, HttpMethod.GET, null, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
+        return jsonResponse(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<String> getOrderById(@PathVariable Long id) {
         String url = orderServiceUrl + "/orders/" + id;
-        return restTemplate.exchange(url, HttpMethod.GET, null, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
+        return jsonResponse(response);
     }
 
     @PutMapping("/{id}/status")
@@ -33,7 +35,14 @@ public class AdminOrderControllers {
             @PathVariable Long id,
             @RequestParam String status) {
         String url = orderServiceUrl + "/orders/" + id + "/status?status=" + status;
-        return restTemplate.exchange(url, HttpMethod.PUT, null, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, null, String.class);
+        return jsonResponse(response);
+    }
+
+    private ResponseEntity<String> jsonResponse(ResponseEntity<String> upstreamResponse) {
+        return ResponseEntity.status(upstreamResponse.getStatusCode())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(upstreamResponse.getBody());
     }
 }
 

@@ -16,6 +16,8 @@ import java.util.List;
 @Data
 public class OrderResponse {
     private Long orderId;
+    private Long userId;
+    private String username;
     private String customerName;
     private String customerPhone;
     private String deliveryMethod;

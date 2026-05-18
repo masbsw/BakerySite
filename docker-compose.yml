@@ -9,6 +9,12 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     networks:
       - bakery-network
 
@@ -20,12 +26,17 @@ services:
     ports:
       - "8082:8082"
     environment:
-        SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/bakery
+        SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bakery
         SPRING_DATASOURCE_USERNAME: postgres
         SPRING_DATASOURCE_PASSWORD: 23230906
-        SPRING_JPA_HIBERNATE_DDL-AUTO: validate
+        SPRING_JPA_HIBERNATE_DDL_AUTO: update
+        SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: "true"
+        SPRING_SQL_INIT_MODE: always
+    volumes:
+      - product_uploads:/app/uploads/products
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - bakery-network
 
@@ -37,12 +48,13 @@ services:
     ports:
       - "8083:8083"
     environment:
-        SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/cartBakery
+        SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/cartBakery
         SPRING_DATASOURCE_USERNAME: postgres
         SPRING_DATASOURCE_PASSWORD: 23230906
-        SPRING_JPA_HIBERNATE_DDL-AUTO: validate
+        SPRING_JPA_HIBERNATE_DDL_AUTO: update
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - bakery-network
 
@@ -54,12 +66,14 @@ services:
     ports:
       - "8084:8084"
     environment:
-        SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/orderBakery
+        SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/orderBakery
         SPRING_DATASOURCE_USERNAME: postgres
         SPRING_DATASOURCE_PASSWORD: 23230906
-        SPRING_JPA_HIBERNATE_DDL-AUTO: validate
+        SPRING_JPA_HIBERNATE_DDL_AUTO: update
+        CATALOG_SERVICE_URL: http://bakery:8082/api
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - bakery-network
 
@@ -71,11 +85,19 @@ services:
     ports:
       - "8086:8086"
     environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/adminBakery
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 23230906
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       CATALOG_SERVICE_URL: http://bakery:8082/api
       ORDER_SERVICE_URL: http://order:8084/api
     depends_on:
-      - bakery
-      - order
+      postgres:
+        condition: service_healthy
+      bakery:
+        condition: service_started
+      order:
+        condition: service_started
     networks:
       - bakery-network
 
@@ -96,6 +118,7 @@ services:
 
 volumes:
   postgres_data:
+  product_uploads:
 
 networks:
   bakery-network:

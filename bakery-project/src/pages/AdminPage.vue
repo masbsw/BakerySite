@@ -50,11 +50,13 @@
   </template>
   
 <script>
+  import { clearAdminSession } from '@/utils/adminAuth';
+
   export default {
     methods: {
       logout() {
-        localStorage.removeItem('adminAuth');
-        this.$router.push('/admin');
+        clearAdminSession();
+        this.$router.push('/admin/login');
       }
     }
   };

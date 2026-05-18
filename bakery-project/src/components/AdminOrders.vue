@@ -105,6 +105,7 @@
     
     <script>
     import axios from 'axios';
+    import { clearAdminSession, getAdminAuthHeaders } from '@/utils/adminAuth';
     
     export default {
       data() {
@@ -117,16 +118,25 @@
         await this.fetchOrders();
       },
       methods: {
+        handleAuthError(error) {
+          if (error.response?.status === 401 || error.response?.status === 403) {
+            clearAdminSession();
+            this.$router.push('/admin/login');
+            return true;
+          }
+          return false;
+        },
+
         async fetchOrders() {
           try {
-            const auth = localStorage.getItem('adminAuth');
-            const response = await axios.get('http://localhost:8086/admin/orders', {
+            const response = await axios.get('/admin-api/admin/orders', {
               headers: {
-                'Authorization': `Basic ${auth}`
+                ...getAdminAuthHeaders()
               }
             });
             this.orders = response.data;
           } catch (error) {
+            if (this.handleAuthError(error)) return;
             console.error('Error fetching orders:', error);
             alert('Ошибка загрузки заказов: ' + (error.response?.data?.message || error.message));
           }
@@ -134,13 +144,12 @@
         
         async updateOrderStatus(order) {
           try {
-            const auth = localStorage.getItem('adminAuth');
             await axios.put(
-              `http://localhost:8086/admin/orders/${order.orderId}/status`, 
+              `/admin-api/admin/orders/${order.orderId}/status`, 
               null,
               {
                 headers: {
-                  'Authorization': `Basic ${auth}`
+                  ...getAdminAuthHeaders()
                 },
                 params: {
                   status: order.orderStatus
@@ -149,6 +158,7 @@
             );
             await this.fetchOrders();
           } catch (error) {
+            if (this.handleAuthError(error)) return;
             console.error('Error updating order status:', error);
             alert('Ошибка обновления статуса: ' + (error.response?.data?.message || error.message));
           }
@@ -156,10 +166,9 @@
     
         async viewOrderDetails(order) {
     try {
-      const auth = localStorage.getItem('adminAuth');
-      const orderResponse = await axios.get(`http://localhost:8086/admin/orders/${order.orderId}`, {
+      const orderResponse = await axios.get(`/admin-api/admin/orders/${order.orderId}`, {
         headers: {
-          'Authorization': `Basic ${auth}`
+          ...getAdminAuthHeaders()
         }
       });
       
@@ -171,12 +180,12 @@
       let products = [];
       
       try {
-        const productsResponse = await axios.get('http://localhost:8086/admin/products', {
+        const productsResponse = await axios.get('/admin-api/admin/products', {
           params: {
             ids: productIds.join(',')
           },
           headers: {
-            'Authorization': `Basic ${auth}` 
+            ...getAdminAuthHeaders()
           }
         });
         products = productsResponse.data;
@@ -197,6 +206,7 @@
         })
       };
     } catch (error) {
+      if (this.handleAuthError(error)) return;
       console.error('Error fetching order details:', error);
       alert('Ошибка загрузки деталей заказа: ' + (error.response?.data?.message || error.message));
     }

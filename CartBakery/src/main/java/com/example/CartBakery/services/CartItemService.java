@@ -34,7 +34,7 @@ public class CartItemService {
     }
 
     public List<CartItem> getCart(String itemSessionId){
-        return cartItemRepository.findByItemSessionId(itemSessionId);
+        return cartItemRepository.findByItemSessionIdOrderByCartItemIdAsc(itemSessionId);
     }
 
 

@@ -5,7 +5,9 @@
         v-for="product in products" 
         :key="product.productId" 
         class="product-item">
-        <img :src="product.productImg" :alt="product.productName" class="product-image">
+        <div class="product-image-frame">
+          <img :src="product.productImg" :alt="product.productName" class="product-image">
+        </div>
         <h5 class="product-name" @click="openInfo(product)">
           {{ product.productName }}
         </h5>
@@ -145,8 +147,8 @@ export default {
 
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-    gap: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    gap: clamp(24px, 3vw, 36px);
     width: 100%;
     max-width: 100%;
 }
@@ -155,16 +157,26 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 20px;
-    min-width: 300px; 
+    width: min(100%, 300px);
+    margin: 0 auto;
+    min-width: 0;
+}
+
+.product-image-frame {
+    width: 100%;
+    max-width: 300px;
+    aspect-ratio: 1 / 1;
+    display: flex;
 }
 
 .product-image {
-    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.5);
-    border-radius: 10%;
     width: 100%;
-    max-width: 300px;
-    height: auto;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    background-color: #f4f4f4;
+    border-radius: 10%;
+    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.35);
 }
 
 .product-name {
@@ -184,7 +196,7 @@ export default {
 
 .product-button {
     margin-top: 10px;
-    width: 90%;
+    width: min(100%, 280px);
 }
 
 .no-products {
@@ -196,18 +208,20 @@ export default {
 @media (max-width: 768px) {
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
-    }
+  }
 }
 
-@media (max-width: 426px) {
+@media (max-width: 640px) {
   .product-grid {
     grid-template-columns: repeat(1, 1fr);
-    }
-    .product-image{
-      width: 60%;
-    }
-    .product-item {
-        margin-bottom: 15px;
-    }
+  }
+
+  .product-image-frame {
+    width: min(100%, 260px);
+  }
+
+  .product-item {
+    margin-bottom: 15px;
+  }
 }
 </style>

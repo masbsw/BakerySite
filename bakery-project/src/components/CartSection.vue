@@ -1,59 +1,57 @@
 <template>
-  <div class="w-full px-4 mx-auto">
+  <div class="cart-wrapper">
     <h1 class="text-3xl md:text-5xl font-semibold mb-6 md:mb-12 mt-6 md:mt-10">Заказ</h1>
-    
-    <div v-if="cartItems.length > 0">
-      <!-- Список товаров -->
-      <div v-for="item in cartItemsWithDetails" :key="item.productId" class="border-t border-black pt-4 md:pt-6 mb-4 md:mb-6">
-        <div class="flex items-start justify-between">
 
-          <div class="flex w-[90%] items-center">
-          <div class="image md:w-1/5  w-full ">
-            <img :src="item.productImg" :alt="item.productName" class="rounded-[10%] w-full max-w-[200px]">
-          </div>
-          
-          <div class="disc-item flex-grow flex-col  ">
-            <div class="flex justify-between items-start">
+    <div v-if="cartItems.length > 0">
+      <div
+        v-for="item in cartItemsWithDetails"
+        :key="item.productId"
+        class="cart-item border-t border-black pt-4 md:pt-6 mb-4 md:mb-6"
+      >
+        <div class="cart-item-row">
+          <div class="cart-item-content">
+            <div class="image">
+              <img :src="item.productImg" :alt="item.productName" class="cart-item-image">
+            </div>
+
+            <div class="disc-item">
               <div>
                 <h2 class="text-xl md:text-3xl font-medium">{{ item.productName }}</h2>
                 <p class="text-base md:text-xl font-normal mt-1">{{ item.productPrice }} руб./шт</p>
               </div>
+
+              <div class="w-max rounded-2xl border border-black mt-3 md:mt-4 flex items-center">
+                <button
+                  @click="decreaseQuantity(item.productId)"
+                  class="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center hover:bg-gray-300 transition"
+                >
+                  -
+                </button>
+                <span class="mx-6 text-base md:text-lg">{{ item.itemQuantity }} шт</span>
+                <button
+                  @click="increaseQuantity(item.productId)"
+                  :disabled="item.itemQuantity >= item.productQuantity"
+                  class="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center hover:bg-gray-300 transition disabled:opacity-50"
+                  :class="{ 'opacity-50 cursor-not-allowed': item.itemQuantity >= item.productQuantity }"
+                >
+                  +
+                </button>
+              </div>
             </div>
-            
-            <!-- Управление количеством -->
-            <div class="w-max rounded-2xl border border-black mt-3 md:mt-4 flex items-center">
-              <button 
-                @click="decreaseQuantity(item.productId)"
-                class=" w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center hover:bg-gray-300 transition"
-              >
-                -
-              </button>
-              <span class="mx-6  text-base md:text-lg">{{ item.itemQuantity }} шт</span>
-              <button 
-                @click="increaseQuantity(item.productId)"
-                :disabled="item.itemQuantity >= item.productQuantity"
-                class=" w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center hover:bg-gray-300 transition disabled:opacity-50"
-                :class="{'opacity-50 cursor-not-allowed': item.itemQuantity >= item.productQuantity}"
-              >
-                +
-              </button>
+
+            <div class="cart-item-price">
+              <p class="text-xl md:text-4xl font-semibold">{{ (item.productPrice * item.itemQuantity) }} руб.</p>
             </div>
-          </div>
-            <!-- Итоговая цена за товар -->
-          <div class="mt-3 md:mt-4 text-right">
-            <p class="text-xl  md:text-4xl font-semibold">{{ (item.productPrice * item.itemQuantity) }} руб.</p>
-          </div>
           </div>
 
-          <button @click="removeItem(item.productId)" class="text-gray-500 hover:text-black">
+          <button @click="removeItem(item.productId)" class="cart-item-remove text-gray-500 hover:text-black">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           </button>
-        </div>  
+        </div>
       </div>
-      
-      <!-- Общая сумма -->
+
       <div class="border-b border-t border-black pt-4 md:pt-6">
         <div class="flex items-center my-4 md:my-8">
           <h3 class="text-2xl md:text-4xl font-medium mr-2 md:mr-3">Итого: </h3>
@@ -61,16 +59,15 @@
         </div>
       </div>
     </div>
-    
-    <!-- Пустая корзина -->
+
     <div v-else class="p-4 md:p-8 text-center">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 md:h-16 md:w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
       </svg>
       <h2 class="text-xl md:text-2xl font-medium mt-3 md:mt-4">Ваша корзина пуста</h2>
       <p class="text-gray-600 mt-1 md:mt-2">Добавьте товары из каталога</p>
-      <router-link 
-        to="/catalog" 
+      <router-link
+        to="/catalog"
         class="btn mt-3 md:mt-4 inline-block bg-[#F1DFCC] hover:bg-[#E8D4BE] text-black font-medium py-2 px-4 md:px-6 rounded-[15px] transition-colors duration-200"
       >
         Перейти в каталог
@@ -116,10 +113,20 @@ export default {
     await this.loadCart();
   },
   methods: {
+    clearCartState() {
+      this.cartItems = [];
+      this.products = [];
+      this.$emit('cart-updated', []);
+    },
+
     async loadCart() {
       try {
         const cartResponse = await axios.get(`cart-api/cart/session/${this.sessionId}`);
-        this.cartItems = cartResponse.data;
+        this.cartItems = [...cartResponse.data].sort((left, right) => {
+          const leftId = left.cartItemId ?? Number.MAX_SAFE_INTEGER;
+          const rightId = right.cartItemId ?? Number.MAX_SAFE_INTEGER;
+          return leftId - rightId;
+        });
         
         this.$emit('cart-updated', this.cartItems);
         
@@ -131,6 +138,8 @@ export default {
             }
           });
           this.products = productsResponse.data;
+        } else {
+          this.products = [];
         }
       } catch (error) {
         console.error('Ошибка загрузки корзины:', error);
@@ -158,7 +167,7 @@ export default {
           await this.removeItem(productId);
         } 
         else {
-          await axios.patch(`/cart-api/cart/decrease/${this.sessionId}/${productId}`);
+          await axios.put(`/cart-api/cart/decrease/${this.sessionId}/${productId}`);
           await this.loadCart();
         }
       } catch (error) {
@@ -179,31 +188,107 @@ export default {
 </script>
 
 <style scoped>
+.cart-wrapper {
+  width: 100%;
+}
+
 .btn {
   border-width: 2px;
   border-color: black;
   opacity: 1;
 }
 
-img {
+.cart-item-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cart-item-content {
+  display: grid;
+  grid-template-columns: minmax(110px, 180px) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(16px, 2vw, 28px);
+  width: 100%;
+  min-width: 0;
+}
+
+.image {
+  width: 100%;
+}
+
+.cart-item-image {
+  width: 100%;
+  max-width: 180px;
+  border-radius: 10%;
   box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.5);
 }
 
+.disc-item {
+  min-width: 0;
+}
+
+.cart-item-price {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cart-item-remove {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+@media (max-width: 1024px) {
+  .cart-item-content {
+    grid-template-columns: 140px minmax(0, 1fr);
+  }
+
+  .cart-item-price {
+    grid-column: 2;
+    justify-self: end;
+  }
+}
+
+@media (max-width: 768px) {
+  .cart-item-row {
+    gap: 10px;
+  }
+
+  .cart-item-content {
+    grid-template-columns: minmax(86px, 120px) minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .cart-item-image {
+    max-width: 120px;
+  }
+
+  .disc-item {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .cart-item-price {
+    grid-column: 1 / -1;
+    justify-self: start;
+    text-align: left;
+  }
+}
 
 @media (max-width: 425px) {
   .btn {
     padding: 0.5rem 1rem;
     font-size: 0.875rem;
   }
-}
 
-@media (max-width: 769px) {
-  .image{
-    max-width: 150px;
+  .cart-item-content {
+    grid-template-columns: 1fr;
   }
 
-  .disc-item{
-    margin-left: 5%;
+  .image {
+    max-width: 132px;
   }
 }
 </style>

@@ -7,6 +7,9 @@ import ContactsPage from './pages/ContactsPage.vue'
 import OrderPage from './pages/OrderPage.vue'
 import CatalogPage from './pages/CatalogPage.vue'
 import AdminPage from './pages/AdminPage.vue'
+import LoginPage from './pages/LoginPage.vue'
+import RegisterPage from './pages/RegisterPage.vue'
+import { clearAdminSession, getAdminRole, getAdminToken } from './utils/adminAuth'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -31,7 +34,18 @@ const router = createRouter({
         component: OrderPage
     },
     {
-        path: '/admin',
+        name: 'Login',
+        path: '/login',
+        component: LoginPage
+    },
+    {
+        name: 'Register',
+        path: '/register',
+        component: RegisterPage
+    },
+    {
+        path: '/admin/login',
+        name: 'AdminLogin',
         component: () => import('./components/AdminLogin.vue'),
         meta: { requiresAuth: false }
     },
@@ -40,6 +54,7 @@ const router = createRouter({
         path: '/admin',
         component: AdminPage,
         meta: {requiresAuth: true},
+        redirect: '/admin/dashboard',
         children:[
             {
                 name:'AdminDashboard',
@@ -64,20 +79,27 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     if (to.matched.some(record => record.meta.requiresAuth)) {
-      const auth = localStorage.getItem('adminAuth');
-      if (!auth) {
+      const token = getAdminToken();
+      const role = getAdminRole();
+      if (!token) {
         next({
-          path: '/admin',
+          name: 'AdminLogin',
           query: { redirect: to.fullPath }
         });
+      } else if (role !== 'ADMIN') {
+        clearAdminSession();
+        next({ name: 'AdminLogin' });
       } else {
         next();
       }
     } else {
+      if (to.name === 'AdminLogin' && getAdminToken() && getAdminRole() === 'ADMIN') {
+        next({ name: 'AdminDashboard' });
+        return;
+      }
       next();
     }
   });
 
 
 createApp(App).use(router).mount('#app')
-

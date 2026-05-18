@@ -7,6 +7,7 @@
 <style>
 footer{
     background-color: rgba(242, 222, 203, 1);
+    margin-top: clamp(40px, 6vw, 88px);
 }
 
 @media (max-width: 426px) {

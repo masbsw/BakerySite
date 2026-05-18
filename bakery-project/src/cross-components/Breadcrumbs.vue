@@ -1,5 +1,5 @@
 <template>
-    <nav class="content mt-[13%] mb-8">
+    <nav class="content">
       <ol class="list-reset flex">
         <li>
           <router-link to="/" class="text-grey-600 font-extralight hover:font-light transition-transform transform hover:scale-105">Главная</router-link>
@@ -11,17 +11,21 @@
 </template>
 
 <style scoped>
+.content {
+  margin: 0 0 32px;
+  padding-top: calc(var(--site-header-height) + 20px);
+}
 
 @media (max-width: 768px) {
-  .content{
-    margin-left: 20px ;
+  .content {
+    margin-bottom: 24px;
+    padding-top: calc(var(--site-header-height) + 16px);
   }
 }
 
 @media (max-width: 426px) {
-  .content{
-    margin-top: 26%;
-    margin-left: 5px ;
+  .content {
+    padding-top: calc(var(--site-header-height) + 12px);
   }
 }
 

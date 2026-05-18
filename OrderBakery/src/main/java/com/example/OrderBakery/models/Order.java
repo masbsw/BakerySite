@@ -42,6 +42,12 @@ public class Order {
     @Column (name = "order_created_at")
     private LocalDateTime orderCreatedAt = LocalDateTime.now();
 
+    @Column(name = "user_id")
+    private Long userId;
+
+    @Column(name = "username")
+    private String username;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems;
 

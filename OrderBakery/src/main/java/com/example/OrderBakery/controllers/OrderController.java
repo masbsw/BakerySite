@@ -1,20 +1,20 @@
 package com.example.OrderBakery.controllers;
 
-
-import com.example.OrderBakery.DTO.OrderItemResponse;
 import com.example.OrderBakery.DTO.OrderRequest;
 import com.example.OrderBakery.DTO.OrderResponse;
 import com.example.OrderBakery.models.Order;
 import com.example.OrderBakery.models.OrderItem;
 import com.example.OrderBakery.models.OrderStatus;
+import com.example.OrderBakery.security.JwtAuthenticatedUser;
 import com.example.OrderBakery.services.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -25,8 +25,13 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest request){
+    public ResponseEntity<OrderResponse> createOrder(
+            @Valid @RequestBody OrderRequest request,
+            @AuthenticationPrincipal JwtAuthenticatedUser authenticatedUser
+    ){
         Order order = new Order();
+        order.setUserId(authenticatedUser.getUserId());
+        order.setUsername(authenticatedUser.getUsername());
         order.setCustomerName(request.getCustomerName());
         order.setCustomerPhone(request.getCustomerPhone());
         order.setDeliveryMethod(request.getDeliveryMethod());
@@ -47,39 +52,10 @@ public class OrderController {
                 .collect(Collectors.toList());
         order.setOrderItems(orderItems);
 
-        Order saveOrder = orderService.addOrder(order);
+        Order saveOrder = orderService.createOrder(order);
 
-        OrderResponse response = MapToOrderResponse(saveOrder);
+        OrderResponse response = orderService.buildOrderResponse(saveOrder);
         return ResponseEntity.ok(response);
-    }
-
-    private OrderResponse MapToOrderResponse(Order order){
-        OrderResponse response = new OrderResponse();
-        response.setCustomerName(order.getCustomerName());
-        response.setCustomerPhone(order.getCustomerPhone());
-        response.setDeliveryMethod(order.getDeliveryMethod());
-        response.setDeliveryAddress(order.getDeliveryAddress());
-        response.setDeliveryDate(order.getDeliveryDate());
-        response.setOrderComment(order.getOrderComment());
-        response.setOrderStatus(order.getOrderStatus());
-        response.setOrderCreatedAt(order.getOrderCreatedAt());
-
-        List<OrderItemResponse> itemResponses = order.getOrderItems().stream()
-                .map(this::MapToOrderItemResponse)
-                .collect(Collectors.toList());
-        response.setOrderItems(itemResponses);
-
-        return response;
-    }
-
-    private OrderItemResponse MapToOrderItemResponse(OrderItem item){
-        OrderItemResponse response = new OrderItemResponse();
-
-        response.setOrderItemId(item.getOrderItemId());
-        response.setProductId(item.getProductId());
-        response.setProductQuantity(item.getProductQuantity());
-
-        return response;
     }
 
 
@@ -96,7 +72,7 @@ public class OrderController {
     }
 
     @PutMapping("/{id}/status")
-    public Order updateStatusOrder(@PathVariable Long id, @RequestParam OrderStatus status){
-        return orderService.updateStatusOrder(id, status);
+    public ResponseEntity<OrderResponse> updateStatusOrder(@PathVariable Long id, @RequestParam OrderStatus status){
+        return ResponseEntity.ok(orderService.updateStatusOrder(id, status));
     }
 }
